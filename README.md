@@ -1,2 +1,2 @@
 # ctapipe_io_hess
-Ctapipe stage 1 handler for H.E.S.S. data
+IO plugin for ctapipe providing HESSEventSource which reads HESS .root DST files providing data at the CTA dl1 data level.
