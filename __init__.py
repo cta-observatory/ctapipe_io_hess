@@ -9,6 +9,19 @@ from ctapipe.core import Component
 from ctapipe.io import DataLevel, EventSource, SimTelEventSource
 
 #Add julia wrapper imports
+from juliacall import Main as jl, convert as jlconvert
+
+jl.seval("using UnROOT")
+
+def PrintElement(myfile,elementname):
+    jlstore = jl.seval("(k, v) -> (@eval $(Symbol(k)) = $v; return)")
+    jlstore("myfile",myfile)
+    jl.seval('f=ROOTFile(myfile)')
+    jlstore("elementname",elementname)
+    print(jl.seval("f"))
+    myelement=jl.seval("f[elementname]")
+    print(myelement)
+    return myelement
 
 def ReadSashDataset(myfile,elementname):
     #Reads Sash Dataset
@@ -89,3 +102,9 @@ class HESSEventSource(EventSource):
     def reference_location(self):
         #Change this to the hess site
         return EarthLocation(lat=0, lon=0 * u.deg, height=0 * u.deg)
+
+
+if __name__=="__main__":
+    myfile="/lfs/l7/hess/users/marandon/CalibData/CT5/dst_NewScheme2/run023400-023599/run_023523_DST_001.root"
+    elementname="MuonStats_tree/TelescopeMuonEfficiency_1"
+    PrintElement(myfile,elementname)
