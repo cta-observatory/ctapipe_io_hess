@@ -25,11 +25,40 @@ def PrintElement(myfile,elementname):
 
 def ReadSashDataset(myfile,elementname):
     #Reads Sash Dataset
+    jlstore = jl.seval("(k, v) -> (@eval $(Symbol(k)) = $v; return)")
+    jlstore("myfile",myfile)
+    jl.seval('f=ROOTFile(myfile)')
+    jlstore("elementname",elementname)
+    #myelement=jl.seval("f[elementname]")
+    hessarray = jl.seval("UnROOT.array(f, elementname, raw=true)")
+    print(hessarray)
     return hessarray
 
-def ReadTTree(myfile,elementname):
+def ReadTTreeLazyTree(myfile,treename,elementname):
     #Reads TTree
+    jlstore = jl.seval("(k, v) -> (@eval $(Symbol(k)) = $v; return)")
+    jlstore("myfile",myfile)
+    jl.seval('f=ROOTFile(myfile)')
+    jlstore("treename",treename)
+    jlstore("elementname",elementname)
+    jl.seval("macro p_str(s) s end")
+    jl.seval('println(f,treename,Regex(join([elementname,\d/f.*])))')
+    hesstree = jl.seval('t=LazyTree(f, treename, [Regex(join([elementname,r"\d/f.*"]))])')
+    jl.seval('println(t)')
+    print(hesstree)
+    return hesstree
+
+def ReadTTreeArray(myfile,elementname):
+    #Reads TTree                                                                                                       
+    jlstore = jl.seval("(k, v) -> (@eval $(Symbol(k)) = $v; return)")
+    jlstore("myfile",myfile)
+    jl.seval('f=ROOTFile(myfile)')
+    jl.seval("treename",treename)
+    jlstore("elementname",elementname)
+    hessarray = jl.seval("LazyTree(f, elementname, raw=true)")
+    print(names(hessarray))
     return hessarray
+
 
 def DSTReader(filename,elementname):
     '''This function needs to contain a wrapper around julia code to read in data from a specific tree in the root file.'''
@@ -106,5 +135,9 @@ class HESSEventSource(EventSource):
 
 if __name__=="__main__":
     myfile="/lfs/l7/hess/users/marandon/CalibData/CT5/dst_NewScheme2/run023400-023599/run_023523_DST_001.root"
-    elementname="MuonStats_tree/TelescopeMuonEfficiency_1"
-    PrintElement(myfile,elementname)
+    #elementname="MuonStats_tree/TelescopeMuonEfficiency_1"
+    treename="MuonStats_tree"
+    elementname="TelescopeMuonEfficiency_"
+    #PrintElement(myfile,elementname)
+    #ReadSashDataset(myfile,elementname)
+    ReadTTreeLazyTree(myfile, treename, elementname)
