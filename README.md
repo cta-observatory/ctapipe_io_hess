@@ -28,10 +28,15 @@ To create a development environment with the things you need to test this packag
 $ git clone <URL>
 $ conda env create -f environment.yml
 $ conda activate ctapipe-io-hess
+$ pre-commit install
 $ pip install -e .[all]
 $ pytest
 ```
-`
+
+When committing changes, be aware that the pre-commit checks are quite picky and
+will reject your commit until you fix what it wants! Use `pre-commit run --all`
+to show all errors, or just `pre-commit run` to see the errors associated with
+your change.
 
 ## Project Structure / Packaging
 
