@@ -1,0 +1,12 @@
+name: ctapipe-io-hess
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - ipykernel
+  - pip
+  - black
+  - ctapipe=0.26
+  - matplotlib
+  - pytest
+  - uproot
