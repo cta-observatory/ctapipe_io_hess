@@ -1,43 +1,37 @@
 # ctapipe-io-hess
 
-A project template for pure python projects.
+A ctapipe io plugin for reading HESS DST data in ROOT format.
 
-## Usage of this repository
+## Installation
 
-This repository is at the moment setup as an example repository,
-not as e.g. a cookie-cutter template that enables automated creation
-of new repositories that follow this template.
-This makes testing this repository easier for now, we will investigate
-turning this repository into a proper cookie-cutter template in the future.
-
-For now, to setup a repository, you need to copy / rename / adapt the files
-in this repository:
-* Change the name of the package and other metadata in `pyproject.toml` and `docs/conf.py`
-* Change the the package directory to correspond to your new package in `src/<package name>`
-* Setup the necessary CI Variables:
-    * `DOCS_ACCESS_TOKEN` needs to be a gitlab personal access token with `read_api` permissions
-    * `TWINE_PASSWORD` needs to be a pypi token, preferably one with a scope only for your project.
-    This requires a manual first upload to (test.)pypi though.
-    * `SONAR_TOKEN`, this variable is set when following the repository setup instructions in sonarqube
-
-
-A quick way to accomplish the first two points is to do it via search-replace:
-
-* change `ctapipe_io_hess` to the name of the python module (what is in `src/`)
-* change `ctapipe-io-hess` to the package name (which is normally the same as the module name, but could be different)
-
-A "one-liner" perl in-place replace can be used to do the search/replace. In
-this example, "my_package" and the module name should be with a hyphen
-"my-package":
+You can install this package via `pip install ctapipe-io-hess`. That will also
+install ctapipe if not already installed, and ctapipe tools with then
+automatically use the plugin. Check that it is installed correctly by running:
 
 ``` sh
-find . -type file | xargs perl -pi -e "s/ctapipe_io_hess/my_module/g"
-find . -type file | xargs perl -pi -e "s/ctapipe-io-hess/my-module/g"
+$ ctapipe-info --plugins
+
+*** ctapipe_io plugins ***
+
+     ctapipe_io_hess -- 0.1.dev4+ge42f6c8.d20250806
 ```
 
-Add the option `-i.bkp` after `perl` if you want to create backups of the files
-that were changed (this is probably not necessary if you are using git)
+This may take a few seconds the first time you run it as ctapipe contains
+modules that are compiled on-the-fly, but it should be faster after.
 
+
+## Developer quick start:
+
+To create a development environment with the things you need to test this package:
+
+``` sh
+$ git clone <URL>
+$ conda env create -f environment.yml
+$ conda activate ctapipe-io-hess
+$ pip install -e .[all]
+$ pytest
+```
+`
 
 ## Project Structure / Packaging
 
@@ -92,21 +86,6 @@ For local development, `setuptools_scm` will build a version development version
 version information is included in the sdist and wheel files and `setuptools_scm` is not used
 when installing those. The setup is somewhat complex and was taken by astropy. It ensures that
 the setuptools scm version is only used in development setups, not in the releases packages.
-
-## CI
-
-For github, see `.github/workflows/`, for gitlab, see `.gitlab-ci.yml`
-
-
-## Integration with the CTAO Sonarqube instances
-
-The `.gitlab-ci.yaml` contains a step to scan the project using sonarqube,
-also ingesting the coverage report created in the previous step.
-This needs the `SONAR_TOKEN` secret variable to be set in the CI configuration
-of the repository and adapting the configuration in `sonar-project.properties`
-for the given project.
-Token and project key can be obtained when creating a new project in the sonarqube
-instance via the GitLab integration, just follow the steps.
 
 ## Docs
 
