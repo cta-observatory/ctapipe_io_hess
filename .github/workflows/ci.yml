@@ -36,12 +36,6 @@ jobs:
       matrix:
         include:
           # linux builds
-          - python-version: "3.8"
-            os: ubuntu-latest
-
-          - python-version: "3.9"
-            os: ubuntu-latest
-
           - python-version: "3.10"
             os: ubuntu-latest
 
@@ -49,11 +43,17 @@ jobs:
             os: ubuntu-latest
             extra-args: ['codecov']
 
+          - python-version: "3.12"
+            os: ubuntu-latest
+
+          - python-version: "3.13"
+            os: ubuntu-latest
+
           # macos builds
-          - python-version: "3.10"
+          - python-version: "3.12"
             os: macos-latest
 
-          - python-version: "3.11"
+          - python-version: "3.13"
             os: macos-latest
 
     runs-on: ${{ matrix.os }}
@@ -101,7 +101,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8"
+          python-version: "3.13"
 
       - name: Install doc dependencies
         run: |
