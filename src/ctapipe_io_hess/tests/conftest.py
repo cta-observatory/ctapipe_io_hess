@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
-import pytest
 from pathlib import Path
+
+import pytest
+
 
 @pytest.fixture(scope="session")
 def example_dst_path() -> Path:

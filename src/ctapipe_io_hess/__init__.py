@@ -1,17 +1,13 @@
 """Plugin for ctapipe for reading HESS DST data."""
 
-from .version import __version__
 import astropy.units as u
 import numpy as np
 from astropy.coordinates import EarthLocation
-
 from ctapipe.containers import (
     DL1Container,
     ObservationBlockContainer,
-    ReconstructedGeometryContainer,
     SchedulingBlockContainer,
 )
-from ctapipe.core import traits
 from ctapipe.instrument import (
     CameraDescription,
     CameraGeometry,
@@ -24,7 +20,8 @@ from ctapipe.instrument import (
 )
 from ctapipe.io import DataLevel, EventSource
 from ctapipe.io.datawriter import ArrayEventContainer
-from ctapipe.reco import Reconstructor
+
+from .version import __version__
 
 __all__ = [
     "__version__",
@@ -103,9 +100,4 @@ class HESSEventSource(EventSource):
 
     def _generator(self):
         for i in range(10):
-            yield ArrayEventContainer(
-                count=i,
-                dl1=DL1Container(
-
-                )
-            )
+            yield ArrayEventContainer(count=i, dl1=DL1Container())
