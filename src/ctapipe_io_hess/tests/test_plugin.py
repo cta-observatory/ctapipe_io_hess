@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from ctapipe.io import EventSource, DataLevel
+import numpy as np
 
 def test_read_hess_dst(example_dst_path: Path):
     """Test that the EventSoruce is set up correct and can read events."""
@@ -15,5 +16,12 @@ def test_read_hess_dst(example_dst_path: Path):
         assert len(source.scheduling_blocks.keys())>=1, "Missing scheduling blocks"
 
         for event in source:
-            for tel_id, tel_event in event.dl1.items():
+
+            assert len(event.dl1.tel) > 0, "Expected at least 1 telecope in the event"
+            assert event.index.event_id > 0
+            assert event.index.obs_id == 170720
+
+            # check the images
+            for tel_id, tel_event in event.dl1.tel.items():
                 assert tel_event.image.shape == 960
+                assert np.count_nonzero(tel_event.image) > 0

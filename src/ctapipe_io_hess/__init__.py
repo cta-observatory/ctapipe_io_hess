@@ -6,6 +6,7 @@ import numpy as np
 from astropy.coordinates import EarthLocation
 
 from ctapipe.containers import (
+    DL1Container,
     ObservationBlockContainer,
     ReconstructedGeometryContainer,
     SchedulingBlockContainer,
@@ -98,8 +99,13 @@ class HESSEventSource(EventSource):
     @classmethod
     def is_compatible(cls, path):
         # TODO: replace with a real check that this is a HESS DST (have to open it with uproot)
-        return str(path).endswith(".dst.root")
+        return str(path).endswith(".root")
 
     def _generator(self):
         for i in range(10):
-            yield ArrayEventContainer(count=i)
+            yield ArrayEventContainer(
+                count=i,
+                dl1=DL1Container(
+
+                )
+            )
