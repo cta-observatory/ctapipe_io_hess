@@ -3,9 +3,10 @@
 from pathlib import Path
 
 import pytest
+from ctapipe.utils import get_dataset_path
 
 
 @pytest.fixture(scope="session")
 def example_dst_path() -> Path:
-    # TODO: return a real test file, from a server preferably
-    return Path("/Users/kkosack/Data/HESS/DST/run_170720_DST_001_NonSplit.root")
+    """Returns an example HESS DST file written with no tree splitting for the Intensity data."""
+    return get_dataset_path("example_hess_dst.root")

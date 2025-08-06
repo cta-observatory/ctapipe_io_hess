@@ -1,8 +1,14 @@
 """Plugin for ctapipe for reading HESS DST data."""
 
+from collections.abc import Generator
+from dataclasses import dataclass
+from pathlib import Path
+
 import astropy.units as u
 import numpy as np
+import uproot
 from astropy.coordinates import EarthLocation
+from astropy.utils import lazyproperty
 from ctapipe.containers import (
     DL1Container,
     ObservationBlockContainer,
@@ -63,7 +69,7 @@ telescopes = [
 ]
 
 # TODO: do this right, these are not correct, just an example.
-subarray = SubarrayDescription(
+DUMMY_SUBARRAY = SubarrayDescription(
     name="HESS",
     tel_descriptions={
         1: telescopes[0],
@@ -83,22 +89,95 @@ subarray = SubarrayDescription(
 )
 
 
+@dataclass
+class DSTMetadata:
+    """Describes aspects of the file."""
+
+    num_subarray_events: int
+
+
 class HESSEventSource(EventSource):
     """EventSource for HESS DSTs."""
 
+    # EventSource properties that must be overridden here or as functions:
     is_simulation = False
-    datalevels = (DataLevel.DL1_IMAGES,)
-    subarray = subarray
-    observation_blocks = {1: ObservationBlockContainer(obs_id=1)}
-    scheduling_blocks = {1: SchedulingBlockContainer(sb_id=1)}
+    simulation_config = False
+
+    # ==========================================================================
+    # Internal methods
+    # ==========================================================================
+
+    @lazyproperty
+    def _metadata(self) -> DSTMetadata:
+        """Return dictionary of metadata from the DST file."""
+        with uproot.open(self.input_url) as root_file:
+            dst_tree = root_file["DST_tree"]
+            n_events = dst_tree.num_entries
+            return DSTMetadata(num_subarray_events=n_events)
+
+    # ==========================================================================
+    # Methods of EventSource the must be implemented
+    # ==========================================================================
+
+    @property
+    def subarray(self) -> SubarrayDescription:
+        """Return Subarray."""
+        return DUMMY_SUBARRAY
 
     @classmethod
-    def is_compatible(cls, path):
+    def is_compatible(cls, file_path: Path) -> bool:
         """Check that path is a HESS DST."""
-        # TODO: replace with a real check that this is a HESS DST (have to open it with uproot)
-        return str(path).endswith(".root")
+        # must be a ROOT file
+        if not str(file_path).endswith(".root"):
+            return False
 
-    def _generator(self):
-        """Generate the events by yielding ArrayEventContainers."""
+        # if it's a ROOT file, let's check inside that it is a HESS DST:
+        try:
+            with uproot.open(file_path) as potential_dst:
+                if "DST_tree" in potential_dst:
+                    return True
+                return False
+        except OSError:
+            # just in case it's not even a real ROOT file
+            return False
+
+    @property
+    def observation_blocks(self) -> dict[int, ObservationBlockContainer]:
+        """
+        Return dict of OBs.
+
+        For HESS DSTs this always just one, with the obs_id being the run
+        number.
+        """
+        return {123456: ObservationBlockContainer(obs_id=123546)}
+
+    @property
+    def scheduling_blocks(self) -> dict[int, SchedulingBlockContainer]:
+        """Return the dict of SBs.
+
+        For HESS, there is no notion of Scheduling Block, so we can just maybe reuse the run id?
+        """
+        return {54321: SchedulingBlockContainer(sb_id=54321)}
+
+    @property
+    def datalevels(self) -> tuple[DataLevel]:
+        """Return datalevels tuple."""
+        return (DataLevel.DL1_IMAGES,)
+
+    def _generator(self) -> Generator[ArrayEventContainer, None, None]:
+        # opent he file and loop over events
         for i in range(10):
             yield ArrayEventContainer(count=i, dl1=DL1Container())
+
+    # ==========================================================================
+    # Other protocol methods
+    # ==========================================================================
+
+    def __len__(self) -> int:
+        """Support using len(source) to get the number of events.
+
+        This also makes the progress bar work when using this event source.
+        """
+        if self.max_events:
+            return max(self.max_events, self._metadata.num_subarray_events)
+        return self._metadata.num_subarray_events
