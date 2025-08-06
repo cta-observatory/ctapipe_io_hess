@@ -25,8 +25,7 @@ from .version import __version__
 
 __all__ = [
     "__version__",
-    "PluginEventSource",
-    "PluginReconstructor",
+    "HESSEventSource",
 ]
 
 # TODO: replace this with one built from real data in the DST
@@ -95,9 +94,11 @@ class HESSEventSource(EventSource):
 
     @classmethod
     def is_compatible(cls, path):
+        """Check that path is a HESS DST."""
         # TODO: replace with a real check that this is a HESS DST (have to open it with uproot)
         return str(path).endswith(".root")
 
     def _generator(self):
+        """Generate the events by yielding ArrayEventContainers."""
         for i in range(10):
             yield ArrayEventContainer(count=i, dl1=DL1Container())

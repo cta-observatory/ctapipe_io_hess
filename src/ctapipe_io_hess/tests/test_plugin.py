@@ -5,11 +5,15 @@ from pathlib import Path
 import numpy as np
 from ctapipe.io import DataLevel, EventSource
 
+from ctapipe_io_hess import HESSEventSource
+
 
 def test_read_hess_dst(example_dst_path: Path):
     """Test that the EventSoruce is set up correct and can read events."""
 
     with EventSource(example_dst_path) as source:
+        assert type(source) is HESSEventSource, "Didn't detect file type."
+
         assert DataLevel.DL1_IMAGES in source.datalevels
         assert source.subarray.n_tels in [4, 5], "Expected 4 or 5 telescopes"
         assert source.is_simulation is False
