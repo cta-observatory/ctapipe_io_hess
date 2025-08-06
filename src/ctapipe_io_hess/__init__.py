@@ -89,11 +89,33 @@ DUMMY_SUBARRAY = SubarrayDescription(
 )
 
 
+def _extract_run_header(run_tree):
+    """Get all readable elements of the RunHeader.
+
+    A bit of a hack to avoid reading items without streamers:
+    """
+    metadata = dict()
+    run_header = run_tree["RunHeader"]
+    for k, v in filter(lambda x: x[0][0] == "f", run_header.items()):
+        value = None
+        try:
+            value = v.array()[
+                -1
+            ]  # take the last element, in case there is more than one run header
+        except Exception:
+            value = f"CANNOT READ TYPE: {v.typename}"
+
+        metadata[k[1:]] = value  # strips off the leading "f"
+
+    return metadata
+
+
 @dataclass
 class DSTMetadata:
     """Describes aspects of the file."""
 
     num_subarray_events: int
+    run_header: dict
 
 
 class HESSEventSource(EventSource):
@@ -113,7 +135,13 @@ class HESSEventSource(EventSource):
         with uproot.open(self.input_url) as root_file:
             dst_tree = root_file["DST_tree"]
             n_events = dst_tree.num_entries
-            return DSTMetadata(num_subarray_events=n_events)
+            run_tree = root_file["run_tree"]
+            run_header = _extract_run_header(run_tree)
+
+        return DSTMetadata(
+            num_subarray_events=n_events,
+            run_header=run_header,
+        )
 
     # ==========================================================================
     # Methods of EventSource the must be implemented
@@ -149,7 +177,17 @@ class HESSEventSource(EventSource):
         For HESS DSTs this always just one, with the obs_id being the run
         number.
         """
-        return {123456: ObservationBlockContainer(obs_id=123546)}
+        run_header = self._metadata.run_header
+        obs_id = run_header["RunNum"]
+
+        return {
+            obs_id: ObservationBlockContainer(
+                obs_id=obs_id,
+                sb_id=0,  # none for HESS, what to put here?
+                producer_id="HESS",
+                actual_duration=run_header["Duration"] * u.s,
+            )
+        }
 
     @property
     def scheduling_blocks(self) -> dict[int, SchedulingBlockContainer]:
