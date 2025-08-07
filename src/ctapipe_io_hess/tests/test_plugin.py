@@ -46,9 +46,9 @@ def test_generic_event_source(example_dst_path: Path):
 
     with EventSource(example_dst_path) as source:
         assert type(source) is HESSEventSource, "Didn't detect file type."
-
-        assert len(source.datalevels) > 0
-        assert source.subarray.n_tels > 0, "Expected at least "
+        assert source.datalevels is not None, "Did not report datalevels"
+        assert len(source.datalevels) > 0, "datalevels should not be empty"
+        assert source.subarray.n_tels > 0, "Expected at least one telescope."
         assert len(source.observation_blocks.keys()) >= 1, "Missing observation blocks"
         assert len(source.scheduling_blocks.keys()) >= 1, "Missing scheduling blocks"
 
@@ -80,6 +80,7 @@ def test_read_hess_dst_specific(example_dst_path: Path):
             31.2,
         )
         assert source.observation_blocks[expected_obs_id].producer_id == "HESS"
+        assert source.scheduling_blocks[expected_obs_id].producer_id == "HESS"
 
         # check the images
         for event in source:

@@ -14,7 +14,10 @@ from ctapipe.containers import (
     DL1Container,
     EventIndexContainer,
     ObservationBlockContainer,
+    ObservingMode,
+    PointingMode,
     SchedulingBlockContainer,
+    SchedulingBlockType,
 )
 from ctapipe.instrument import (
     CameraDescription,
@@ -197,7 +200,25 @@ class HESSEventSource(EventSource):
 
         For HESS, there is no notion of Scheduling Block, so we can just maybe reuse the run id?
         """
-        return {54321: SchedulingBlockContainer(sb_id=54321)}
+        run_header = self._metadata.run_header
+        sb_id = run_header["RunNum"]
+        sb_type = SchedulingBlockType.CALIBRATION
+        if "observation" in run_header["RunType"].lower():
+            sb_type = SchedulingBlockType.OBSERVATION
+
+        # TODO: how to determine these?
+        obs_mode = ObservingMode.WOBBLE
+        pnt_mode = PointingMode.TRACK
+
+        return {
+            sb_id: SchedulingBlockContainer(
+                sb_id=sb_id,
+                producer_id="HESS",
+                sb_type=sb_type,
+                observing_mode=obs_mode,
+                pointing_mode=pnt_mode,
+            )
+        }
 
     @property
     def datalevels(self) -> tuple[DataLevel]:
