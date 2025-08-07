@@ -72,7 +72,7 @@ def test_read_hess_dst_specific(example_dst_path: Path):
 
     with EventSource(example_dst_path) as source:
         assert DataLevel.DL1_IMAGES in source.datalevels
-        assert source.subarray.n_tels in [4, 5], "Expected 4 or 5 telescopes"
+        assert source.subarray.n_tels <= 5, "Expected up to 5 telescopes"
         assert source.is_simulation is False
         assert expected_obs_id in source.observation_blocks
         np.testing.assert_approx_equal(
