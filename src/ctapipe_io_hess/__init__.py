@@ -241,7 +241,7 @@ class HESSEventSource(EventSource):
             ]
             obs_id = self._metadata.run_header["RunNum"]
 
-            # CODE TO LOOP OVER EVENTS HERE
+            # Loop over rows (events) in the DST tree
             for count, entries in enumerate(
                 dst_tree.iterate(
                     branches_to_load, step_size=1, entry_stop=self.max_events
