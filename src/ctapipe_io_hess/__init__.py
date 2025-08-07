@@ -261,13 +261,24 @@ class HESSEventSource(EventSource):
                 tel_pointing = {}
 
                 for tel_id in tels_with_data:
+                    # Fill the telescope image information. We only store the
+                    # DL1 image and DL1 image_mask, which should be a flat array
+                    # length n_pixels (so 960 for HESS-I), containing the
+                    # intensity values for pixels in the DST. For pixels that
+                    # are not in this event (e.g. were cleaned away), the
+                    # element of image be set to 0.0 and the corresponding
+                    # image_mask element should be False.
                     image = np.zeros(960, dtype=np.float32)  # TODO: load it
-                    image_mask = np.zeros(960, dtype=np.float32)  # TODO: load it
+                    image_mask = np.ones(960, dtype=np.float32)  # TODO: load it
 
                     tel_camera[tel_id] = DL1CameraContainer(
                         image=image, image_mask=image_mask
                     )
 
+                    # Set the telecope's pointing direction. This should be the
+                    # best pointing you have, i.e. the correcteed azimuth,
+                    # altitude. Right now we do not support rotations, but that
+                    # will be available in a future version of ctapipe.
                     tel_pointing[tel_id] = TelescopePointingContainer(
                         azimuth=0 * u.deg, altitude=0 * u.deg
                     )
