@@ -10,7 +10,9 @@ import uproot
 from astropy.coordinates import EarthLocation
 from astropy.utils import lazyproperty
 from ctapipe.containers import (
+    DL1CameraContainer,
     DL1Container,
+    EventIndexContainer,
     ObservationBlockContainer,
     SchedulingBlockContainer,
 )
@@ -205,7 +207,11 @@ class HESSEventSource(EventSource):
     def _generator(self) -> Generator[ArrayEventContainer, None, None]:
         # opent he file and loop over events
         for i in range(10):
-            yield ArrayEventContainer(count=i, dl1=DL1Container())
+            yield ArrayEventContainer(
+                index=EventIndexContainer(event_id=1, obs_id=1),
+                count=i,
+                dl1=DL1Container(tel={1: DL1CameraContainer()}),
+            )
 
     # ==========================================================================
     # Other protocol methods

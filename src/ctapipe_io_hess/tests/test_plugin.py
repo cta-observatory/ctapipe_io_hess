@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -48,14 +49,20 @@ def test_generic_event_source(example_dst_path: Path):
 
         assert len(source.datalevels) > 0
         assert source.subarray.n_tels > 0, "Expected at least "
-        assert source.is_simulation
         assert len(source.observation_blocks.keys()) >= 1, "Missing observation blocks"
         assert len(source.scheduling_blocks.keys()) >= 1, "Missing scheduling blocks"
 
+        seen_event_ids = defaultdict(int)
+
         for event in source:
             assert len(event.dl1.tel) > 0, "Expected at least 1 telecope in the event"
-            assert event.index.event_id >= 0
-            assert event.index.obs_id >= 0
+            assert event.index.event_id >= 0, "event_ids should be positive"
+            assert event.index.obs_id >= 0, "obs_ids should be positive"
+            seen_event_ids[(event.index.obs_id, event.index.event_id)] += 1
+
+        # check uniqueness of event_ids within an obs_id
+        for ids, count in seen_event_ids.items():
+            assert count <= 1, f"(obs_ids={ids[0]}, event_id={ids[1]}) was not unique"
 
 
 def test_read_hess_dst_specific(example_dst_path: Path):
@@ -67,15 +74,31 @@ def test_read_hess_dst_specific(example_dst_path: Path):
         assert DataLevel.DL1_IMAGES in source.datalevels
         assert source.subarray.n_tels in [4, 5], "Expected 4 or 5 telescopes"
         assert source.is_simulation is False
-        assert expected_obs_id in source.observing_blocks
-        assert np.testing.assert_approx_equal(
-            source.observing_blocks[expected_obs_id].duration.to_value("min"), 31.2
+        assert expected_obs_id in source.observation_blocks
+        np.testing.assert_approx_equal(
+            source.observation_blocks[expected_obs_id].actual_duration.to_value("min"),
+            31.2,
         )
-        assert source.observing_blocks[expected_obs_id].producer == "HESS"
+        assert source.observation_blocks[expected_obs_id].producer_id == "HESS"
 
         # check the images
         for event in source:
             for tel_id, tel_event in event.dl1.tel.items():
-                assert tel_event.image.shape == 960
-                assert np.count_nonzero(tel_event.image) > 0
-                assert tel_id >= 0
+                assert tel_id >= 0, "tel_id should be positive"
+                assert tel_event.image, "Image should exist"
+                assert (
+                    tel_event.image.shape == 960
+                ), "Image has unexpected number of pixels"
+                assert (
+                    np.count_nonzero(tel_event.image) > 0
+                ), "Image should not be all 0s"
+
+
+def test_process_to_dl2_geometry(example_dst_path, tmp_path):
+    """
+    Test full chain.
+
+    Process a DST from DL1-images to generate DL1-parameteres and then
+    DL2-geometry using ctapipe-process. If this works, then everything is fine!
+    """
+    pass  # TODO: implement me
