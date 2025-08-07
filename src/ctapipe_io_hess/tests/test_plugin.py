@@ -70,7 +70,7 @@ def test_read_hess_dst_specific(example_dst_path: Path):
 
     expected_obs_id = 170720
 
-    with EventSource(example_dst_path) as source:
+    with EventSource(example_dst_path, max_events=1000) as source:
         assert DataLevel.DL1_IMAGES in source.datalevels
         assert source.subarray.n_tels <= 5, "Expected up to 5 telescopes"
         assert source.is_simulation is False
@@ -86,9 +86,9 @@ def test_read_hess_dst_specific(example_dst_path: Path):
         for event in source:
             for tel_id, tel_event in event.dl1.tel.items():
                 assert tel_id >= 0, "tel_id should be positive"
-                assert tel_event.image, "Image should exist"
+                assert tel_event.image is not None, "Image should exist"
                 assert (
-                    tel_event.image.shape == 960
+                    tel_event.image.shape[0] == 960
                 ), "Image has unexpected number of pixels"
                 assert (
                     np.count_nonzero(tel_event.image) > 0

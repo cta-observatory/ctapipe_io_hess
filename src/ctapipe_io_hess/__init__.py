@@ -13,11 +13,15 @@ from ctapipe.containers import (
     DL1CameraContainer,
     DL1Container,
     EventIndexContainer,
+    EventType,
     ObservationBlockContainer,
     ObservingMode,
+    PointingContainer,
     PointingMode,
     SchedulingBlockContainer,
     SchedulingBlockType,
+    TelescopePointingContainer,
+    TriggerContainer,
 )
 from ctapipe.instrument import (
     CameraDescription,
@@ -188,7 +192,7 @@ class HESSEventSource(EventSource):
         return {
             obs_id: ObservationBlockContainer(
                 obs_id=obs_id,
-                sb_id=0,  # none for HESS, what to put here?
+                sb_id=obs_id,  # none for HESS, what to put here?
                 producer_id="HESS",
                 actual_duration=run_header["Duration"] * u.s,
             )
@@ -226,13 +230,59 @@ class HESSEventSource(EventSource):
         return (DataLevel.DL1_IMAGES,)
 
     def _generator(self) -> Generator[ArrayEventContainer, None, None]:
-        # opent he file and loop over events
-        for i in range(10):
-            yield ArrayEventContainer(
-                index=EventIndexContainer(event_id=1, obs_id=1),
-                count=i,
-                dl1=DL1Container(tel={1: DL1CameraContainer()}),
-            )
+        # open the file and loop over events, extracting the images and
+        # image_masks (which are the cleaning masks where 1="good"
+
+        with uproot.open(self.input_url) as dst_file:
+            dst_tree = dst_file["DST_tree"]
+            branches_to_load = [
+                "EventHeader/fGlobalEvtNum",
+                "EventHeader/fGlobalBunchNum",
+            ]
+            obs_id = self._metadata.run_header["RunNum"]
+
+            # CODE TO LOOP OVER EVENTS HERE
+            for count, entries in enumerate(
+                dst_tree.iterate(
+                    branches_to_load, step_size=1, entry_stop=self.max_events
+                )
+            ):
+                entry = entries[0]  # since entries is an array length step_size
+                bunch_num = entry["EventHeader/fGlobalBunchNum"]
+                event_num = entry["EventHeader/fGlobalEvtNum"]
+
+                event_id = (np.int64(bunch_num) << 32) + event_num
+                tels_with_data = [1, 2, 3, 4]  # TODO: read this!
+                tels_with_trigger = [1, 2, 3, 4, 5]  # TODO read this
+
+                # Loop over telescopes in the event, and fill the DL1 info for
+                # each Telescope Event
+                tel_camera = {}
+                tel_pointing = {}
+
+                for tel_id in tels_with_data:
+                    image = np.zeros(960, dtype=np.float32)  # TODO: load it
+                    image_mask = np.zeros(960, dtype=np.float32)  # TODO: load it
+
+                    tel_camera[tel_id] = DL1CameraContainer(
+                        image=image, image_mask=image_mask
+                    )
+
+                    tel_pointing[tel_id] = TelescopePointingContainer(
+                        azimuth=0 * u.deg, altitude=0 * u.deg
+                    )
+
+                # Now yield the array event
+                yield ArrayEventContainer(
+                    index=EventIndexContainer(event_id=event_id, obs_id=obs_id),
+                    count=count,
+                    trigger=TriggerContainer(
+                        tels_with_trigger=tels_with_trigger,
+                        event_type=EventType.SUBARRAY,  # HESS has no interleved events?
+                    ),
+                    dl1=DL1Container(tel=tel_camera),
+                    pointing=PointingContainer(tel=tel_pointing),
+                )
 
     # ==========================================================================
     # Other protocol methods
