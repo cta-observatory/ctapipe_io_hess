@@ -230,15 +230,22 @@ class HESSEventSource(EventSource):
         return (DataLevel.DL1_IMAGES,)
 
     def _generator(self) -> Generator[ArrayEventContainer, None, None]:
-        # open the file and loop over events, extracting the images and
-        # image_masks (which are the cleaning masks where 1="good"
+        """
+        Generate Events.
 
+        This is the core of the EventSource. It should yield one
+        ArrayEventContainer per event in the file.
+        """
         with uproot.open(self.input_url) as dst_file:
             dst_tree = dst_file["DST_tree"]
+
+            # List here the branches that should be read in the file. This is
+            # passed to the DST_tree iterator to tell uproot what to load.
             branches_to_load = [
                 "EventHeader/fGlobalEvtNum",
                 "EventHeader/fGlobalBunchNum",
             ]
+
             obs_id = self._metadata.run_header["RunNum"]
 
             # Loop over rows (events) in the DST tree
