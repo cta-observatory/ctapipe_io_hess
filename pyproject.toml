@@ -41,8 +41,8 @@ test = [
 doc = [
   "sphinx",
   "numpydoc",
-  "ctao-sphinx-theme~=0.1.2",
   "sphinx-changelog",
+  "pydata-sphinx-theme",
 ]
 dev = [
   "setuptools_scm",

@@ -11,3 +11,7 @@ dependencies:
   - pytest
   - uproot
   - pre-commit
+  - pydata-sphinx-theme
+  - sphinx
+  - sphinx_changelog
+  - numpydoc
