@@ -107,10 +107,10 @@ jobs:
         run: |
           pip install -e .[doc]
           git describe --tags
-          python -c 'import TEMPLATE_MODULE; print(TEMPLATE_MODULE.__version__)'
+          python -c 'import ctapipe_io_hess; print(ctapipe_io_hess.__version__)'
 
       - name: Build docs
-        run: make html SPHINXOPTS="-W --keep-going -n --color -j auto"
+        run: cd docs && make html SPHINXOPTS="-W --keep-going -n --color -j auto"
 
       - name: Deploy to github pages
         # only run on push to master
