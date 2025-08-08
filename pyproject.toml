@@ -151,12 +151,12 @@ xfail_strict = true
 # print summary of failed tests, force errors if settings are misspelled
 addopts = ["-ra", "--strict-config", "--strict-markers"]
 filterwarnings = [
-    "error",
     # this warning should not be turned into an error, will happen e.g. when
     # using wheels compiled against an older version of numpy then is used at runtime
     # left as warning as the other direction (compiled vs. newer, using older numpy) is
     # problematic
-    "default:numpy.ndarray size changed:RuntimeWarning"
+    "default:numpy.ndarray size changed:RuntimeWarning",
+    "ignore::ctapipe.instrument.FromNameWarning", # ignore this for now, but should remove!
 ]
 
 

@@ -65,6 +65,23 @@ def test_generic_event_source(example_dst_path: Path):
             assert count <= 1, f"(obs_ids={ids[0]}, event_id={ids[1]}) was not unique"
 
 
+def test_container_contents(example_dst_path):
+    """
+    Check that metadata like observation_blocks has the right format.
+
+    This check is done by calling the validate() method of each Container class.
+    """
+    with EventSource(example_dst_path) as source:
+        for ob in source.observation_blocks.values():
+            ob.validate()
+
+        for sb in source.scheduling_blocks.values():
+            sb.validate()
+
+        event = next(iter(source))
+        event.validate()
+
+
 def test_read_hess_dst_specific(example_dst_path: Path):
     """Test that the EventSource is set up and the values are what are expected."""
 

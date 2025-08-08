@@ -189,7 +189,7 @@ class HESSEventSource(EventSource):
         number.
         """
         run_header = self._metadata.run_header
-        obs_id = run_header["RunNum"]
+        obs_id = np.uint64(run_header["RunNum"])
 
         return {
             obs_id: ObservationBlockContainer(
@@ -207,7 +207,7 @@ class HESSEventSource(EventSource):
         For HESS, there is no notion of Scheduling Block, so we can just maybe reuse the run id?
         """
         run_header = self._metadata.run_header
-        sb_id = run_header["RunNum"]
+        sb_id = np.uint64(run_header["RunNum"])
         sb_type = SchedulingBlockType.CALIBRATION
         if "observation" in run_header["RunType"].lower():
             sb_type = SchedulingBlockType.OBSERVATION
