@@ -86,3 +86,6 @@ autodoc_default_options = {
 }
 
 add_module_names = False
+
+# Override the kernel name that is stored in the notebook
+nbsphinx_kernel_name = "python3"
