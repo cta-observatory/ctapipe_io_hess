@@ -106,6 +106,7 @@ jobs:
 
       - name: Install doc dependencies
         run: |
+          sudo apt-get update && sudo apt-get install -y pandoc
           pip install -e .[doc]
           git describe --tags
           python -c 'import ctapipe_io_hess; print(ctapipe_io_hess.__version__)'
