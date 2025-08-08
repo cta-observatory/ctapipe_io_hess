@@ -46,6 +46,7 @@ doc = [
   "nbsphinx",
   "ipywidgets",
   "ipykernel",
+  "matplotlib",
 ]
 dev = [
   "setuptools_scm",
