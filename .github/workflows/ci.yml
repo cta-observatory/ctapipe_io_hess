@@ -117,7 +117,7 @@ jobs:
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/html
+          path: docs/build/html/
 
   deploy:
     environment:
