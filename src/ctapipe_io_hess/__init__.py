@@ -57,7 +57,9 @@ optics = OpticsDescription(
 
 step = 0.1
 t = np.arange(0, 40, step)
-geometry = CameraGeometry.make_rectangular()
+# TODO: this geometry looks nice, but it's the Simulation pixel layout, not the
+# real one, so need to do it properly
+geometry = CameraGeometry.from_name("HESS-I")
 camera = CameraDescription(
     name="1U",
     geometry=geometry,

@@ -30,6 +30,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "numpydoc",
     "sphinx_changelog",
+    "nbsphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -38,7 +39,7 @@ templates_path = []
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["changes"]
+exclude_patterns = ["changes", "*/.virtual_documents/*", "*/.ipynb_checkpoints/*"]
 
 # have all links automatically associated with the right domain.
 default_role = "py:obj"
@@ -85,3 +86,11 @@ autodoc_default_options = {
 }
 
 add_module_names = False
+
+# Override the kernel name that is stored in the notebook
+nbsphinx_kernel_name = "python3"
+
+
+nitpick_ignore = [
+    ("py:class", "pathlib._local.Path"),
+]

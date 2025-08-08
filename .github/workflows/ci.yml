@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.13"
       - uses: pre-commit/action@v3.0.0
         with:
           extra_args: --all-files
@@ -106,6 +106,7 @@ jobs:
 
       - name: Install doc dependencies
         run: |
+          sudo apt-get update && sudo apt-get install -y pandoc
           pip install -e .[doc]
           git describe --tags
           python -c 'import ctapipe_io_hess; print(ctapipe_io_hess.__version__)'

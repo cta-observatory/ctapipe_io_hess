@@ -43,6 +43,10 @@ doc = [
   "numpydoc",
   "sphinx-changelog",
   "pydata-sphinx-theme",
+  "nbsphinx",
+  "ipywidgets",
+  "ipykernel",
+  "matplotlib",
 ]
 dev = [
   "setuptools_scm",
