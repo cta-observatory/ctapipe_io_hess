@@ -1,4 +1,4 @@
-TEMPLATE_MODULE: |
+ctapipe_io_hess: |
   ## What's Changed since $PREVIOUS_TAG
 
   $CHANGES
