@@ -2,6 +2,8 @@
 
 A ctapipe io plugin for reading HESS DST data in ROOT format.
 
+**Documentation**: [ctapipe-io-hess docs](https://cta-observatory.github.io/ctapipe_io_hess/index.html)
+
 ## Installation
 
 You can install this package via `pip install ctapipe-io-hess`. That will also
