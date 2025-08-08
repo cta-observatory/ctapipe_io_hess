@@ -43,6 +43,8 @@ doc = [
   "numpydoc",
   "sphinx-changelog",
   "pydata-sphinx-theme",
+  "nbsphinx",
+  "ipywidgets",
 ]
 dev = [
   "setuptools_scm",

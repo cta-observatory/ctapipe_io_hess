@@ -15,3 +15,5 @@ dependencies:
   - sphinx
   - sphinx_changelog
   - numpydoc
+  - nbsphinx
+  - ipywidgets

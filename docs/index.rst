@@ -36,6 +36,7 @@ use it if you give a compatible file as input, for example:
     installation
     reference
     changelog
+    tutorials/developer_help.ipynb
 
 
 
