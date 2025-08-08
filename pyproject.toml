@@ -45,6 +45,7 @@ doc = [
   "pydata-sphinx-theme",
   "nbsphinx",
   "ipywidgets",
+  "ipykernel",
 ]
 dev = [
   "setuptools_scm",
