@@ -10,13 +10,6 @@ As a user, install from pypi:
 
     $ pip install ctapipe-io-hess
 
-Or ``conda-forge``:
-
-.. code-block:: shell
-
-    $ mamba install -c conda-forge ctapipe-io-hess
-
-
 
 Developer Setup
 ---------------
@@ -26,10 +19,15 @@ and then install the package in development mode:
 
 .. code-block:: shell
 
-   $ git clone git@gitlab.cta-observatory.org:cta-computing/documentation/python-project-template
-   $ cd python-project-template
-   $ python -m venv venv
-   $ source venv/bin/activate
-   $ pip install -e .[test,doc,dev]
+    git clone <URL>
+    cd ctapipe-io-hess
+    conda env create -f environment.yml
+    conda activate ctapipe-io-hess
+    pre-commit install
+    pip install -e .[all]
+    pytest
 
-The same also works with conda, create a conda env instead of a venv above.
+When committing changes, be aware that the pre-commit checks are quite picky and
+will reject your commit until you fix what it wants! Use ``pre-commit run --all``
+to show all errors, or just ``pre-commit run`` to see the errors associated with
+your change.

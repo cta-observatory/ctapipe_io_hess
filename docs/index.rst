@@ -1,7 +1,7 @@
-CTAO Python Project Template
-============================
+ctapipe-io-hess
+===============
 
-This is the python project template.
+A ctapipe plugin to read HESS DST data in ROOT format.
 
 **Version**: |version| **Date**: |today|
 
